@@ -46,5 +46,48 @@
     </footer>
 
     <script src="app.js"></script>
+    <script>
+      // Adicione este script para renderizar participantes
+      document.addEventListener("DOMContentLoaded", async () => {
+        const activitiesList = document.getElementById("activities-list");
+        const activitySelect = document.getElementById("activity");
+        try {
+          const res = await fetch("/activities");
+          const activities = await res.json();
+          activitiesList.innerHTML = "";
+          activitySelect.innerHTML = '<option value="">-- Select an activity --</option>';
+          Object.entries(activities).forEach(([name, data]) => {
+            // Cria o cartão da atividade
+            const card = document.createElement("div");
+            card.className = "activity-card";
+            card.innerHTML = `
+              <h4>${name}</h4>
+              <p>${data.description}</p>
+              <p><strong>Schedule:</strong> ${data.schedule}</p>
+              <p><strong>Max participants:</strong> ${data.max_participants}</p>
+              <div class="participants-section">
+                <strong>Participants:</strong>
+                <ul class="participants-list">
+                  ${
+                    data.participants.length
+                      ? data.participants.map(email => `<li>${email}</li>`).join("")
+                      : '<li><em>No participants yet</em></li>'
+                  }
+                </ul>
+              </div>
+            `;
+            activitiesList.appendChild(card);
+
+            // Adiciona opção ao select
+            const opt = document.createElement("option");
+            opt.value = name;
+            opt.textContent = name;
+            activitySelect.appendChild(opt);
+          });
+        } catch (e) {
+          activitiesList.innerHTML = "<p>Could not load activities.</p>";
+        }
+      });
+    </script>
   </body>
 </html>
